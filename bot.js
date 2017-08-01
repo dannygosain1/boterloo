@@ -21,7 +21,7 @@ bot.dialog('/intro', [ // perform text matching
 
 bot.dialog('/menu',[
   function(session) {
-    builder.Prompts.choice(session,"Please choose one of the following options:", "Buildings|Info Sessions|FEDS Events|Weather");
+    builder.Prompts.choice(session,"Please choose one of the following options:", "Buildings|Info Sessions|FEDS Events|Goose Locations|Weather");
   },
 
   function(session,results) {
@@ -74,6 +74,34 @@ bot.dialog('/menu',[
           events.push("Go back to Menu");
           console.log("These are all the scheduled FEDS events")
           builder.Prompts.choice(session, "Please select an event you are interested in", events);
+        });
+      });
+    }
+
+    else if(results.response.entity === "Goose Locations") {
+      session.userData.path = "goose";
+      var url = api + "resources/goosewatch.json?key=" + apiToken;
+      https.get(url,function(data){
+        var info = '';
+        data.on('data',function(item) {
+          info += item;
+        });
+        data.on('error', function (e) {
+          console.log('Errors:', e);
+        });
+        data.on('end', function() {
+          var res = JSON.parse(info);
+          var goose = [];
+          for (var i = 0; i < res.data.length; i++) {
+            goose.push(res.data[i].location);
+          }
+          var num = 1;
+          console.log("Try to avoid the following area(s):")
+          for(var j=0; j <= goose.length && num <= goose.length; j++) {
+            console.log(num + ". " + goose[j]);
+            num++;
+          }
+          builder.Prompts.text(session,"Type 'exit' to exit the bot! Type anything else to see the menu again");
         });
       });
     }
@@ -227,6 +255,13 @@ bot.dialog('/menu',[
           });
         });
       }
+    }
+
+    else if (session.userData.path === "goose") {
+      if (results.response == "exit") {
+        process.exit();
+      }
+      session.beginDialog('/menu');
     }
 
     else if (session.userData.path === "Weather") {

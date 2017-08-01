@@ -69,7 +69,15 @@ bot.dialog('/menu',[
           var res = JSON.parse(info);
           var events = [];
           for (var i = 0; i < res.data.length; i++) {
-            events.push(res.data[i].title);
+            var today = new Date();
+            var currDate = today.getDate();
+            var currMonth = today.getMonth()+1; // January is 0 by default
+            var currYear = today.getFullYear();
+            var eventDate = parseInt(res.data[i].start.substr(8,10));
+            var eventMonth = parseInt(res.data[i].start.substr(5,7));
+            var eventYear = parseInt(res.data[i].start.substr(0,4));
+            if (eventYear >= currYear && eventMonth >= currMonth && eventDate >= eventDate)
+              events.push(res.data[i].title);
           }
           events.push("Go back to Menu");
           console.log("These are all the scheduled FEDS events")

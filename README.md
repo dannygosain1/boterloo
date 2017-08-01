@@ -2,7 +2,8 @@
 An interactive chatbot built using Node, Microsoft Bot Framework and the uWaterloo Open Data API. Use this bot to get all sorts of information about the University of Waterloo, like:
 1. Buildings
 2. Info Sessions
-3. Weather
+3. Feds Events
+4. Weather
 
 ## Intructions to Start
 1. Clone the repo - ```git clone https://github.com/dannygosain1/boterloo.git```

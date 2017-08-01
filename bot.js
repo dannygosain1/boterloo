@@ -3,7 +3,7 @@ const https = require('https'); // use HTTPS module
 const connector = new builder.ConsoleConnector().listen(); // connect to console
 const bot = new builder.UniversalBot(connector); // use UniversalBot
 const intents = new builder.IntentDialog();
-var apiToken = '9093618ad7a132a5664d6aebe52c8499'; // usage: ?key=9093618ad7a132a5664d6aebe52c8499
+var apiToken = '9093618ad7a132a5664d6aebe52c8499'; // public key
 var api = 'https://api.uwaterloo.ca/v2/';
 
 console.log("Say Hi to get me started!");
@@ -21,7 +21,7 @@ bot.dialog('/intro', [ // perform text matching
 
 bot.dialog('/menu',[
   function(session) {
-    builder.Prompts.choice(session,"Please choose one of the following options:", "Buildings|Info Sessions|Weather");
+    builder.Prompts.choice(session,"Please choose one of the following options:", "Buildings|Info Sessions|FEDS Events|Weather");
   },
 
   function(session,results) {
@@ -50,6 +50,30 @@ bot.dialog('/menu',[
           employer.push("Go back to Menu");
           console.log("These are all the companies with info sessions")
           builder.Prompts.choice(session, "Please select an employer you are interested in", employer);
+        });
+      });
+    }
+
+    else if(results.response.entity === "FEDS Events") {
+      session.userData.path = "feds";
+      var url = api + "feds/events.json?key=" + apiToken;
+      https.get(url,function(data){
+        var info = '';
+        data.on('data',function(item) {
+          info += item;
+        });
+        data.on('error', function (e) {
+          console.log('Errors:', e);
+        });
+        data.on('end', function() {
+          var res = JSON.parse(info);
+          var events = [];
+          for (var i = 0; i < res.data.length; i++) {
+            events.push(res.data[i].title);
+          }
+          events.push("Go back to Menu");
+          console.log("These are all the scheduled FEDS events")
+          builder.Prompts.choice(session, "Please select an event you are interested in", events);
         });
       });
     }
@@ -162,6 +186,49 @@ bot.dialog('/menu',[
       }
     }
 
+    else if(session.userData.path === "feds") {
+      if (results.response.entity === "Go back to Menu") {
+        session.beginDialog('/menu');
+      }
+      else {
+        var selection = results.response.entity;
+        var url = api + "feds/events.json?key=" + apiToken;
+        https.get(url,function(data){
+          var info = '';
+          data.on('data',function(item) {
+            info += item;
+          });
+          data.on('error', function (e) {
+            console.log('Errors:', e);
+          });
+          data.on('end', function() {
+            var res = JSON.parse(info);
+            var eventName = false;
+            var i = 0;
+            while (!eventName && i < res.data.length){
+              if (res.data[i].title == selection) {
+                console.log("Event: " + res.data[i].title);
+                console.log("Location: " + res.data[i].location);
+                var startDate = res.data[i].start.substr(0,res.data[i].start.indexOf('T'));
+                var startTime = res.data[i].start.substr(res.data[i].start.indexOf('T')+1,8);
+                console.log("Start: " + startDate + " at " + startTime);
+                var endDate = res.data[i].end.substr(0,res.data[i].end.indexOf('T'));
+                var endTime = res.data[i].end.substr(res.data[i].end.indexOf('T')+1,8);
+                console.log("End: " + endDate + " at " + endTime);
+                var updatedDate = res.data[i].updated.substr(0,res.data[i].updated.indexOf('T'));
+                var updatedTime = res.data[i].updated.substr(res.data[i].updated.indexOf('T')+1,8);
+                console.log("Last Updated: " + updatedDate + " at " + updatedTime);
+                console.log("Url: " + res.data[i].url);
+                eventName = true;
+              }
+              i++;
+            }
+            builder.Prompts.text(session,"Type 'exit' to exit the bot! Type anything else to see the menu again");
+          });
+        });
+      }
+    }
+
     else if (session.userData.path === "Weather") {
       if (results.response == "exit") {
         process.exit();
@@ -212,6 +279,12 @@ bot.dialog('/menu',[
       }
     }
     else if (session.userData.path === "info") {
+      if (results.response == "exit") {
+        process.exit();
+      }
+      session.beginDialog('/menu');
+    }
+    else if (session.userData.path === "feds") {
       if (results.response == "exit") {
         process.exit();
       }

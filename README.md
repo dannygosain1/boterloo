@@ -3,7 +3,8 @@ An interactive chatbot built using Node, Microsoft Bot Framework and the uWaterl
 1. Buildings
 2. Info Sessions
 3. Feds Events
-4. Local Weather
+4. Goose Locations (obviously)
+5. Local Weather
 
 ## Intructions to Start
 1. Clone the repo - ```git clone https://github.com/dannygosain1/boterloo.git```

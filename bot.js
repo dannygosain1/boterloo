@@ -69,14 +69,18 @@ bot.dialog('/menu',[
           var res = JSON.parse(info);
           var events = [];
           for (var i = 0; i < res.data.length; i++) {
-            var today = new Date();
-            var currDate = today.getDate();
-            var currMonth = today.getMonth()+1; // January is 0 by default
-            var currYear = today.getFullYear();
             var eventDate = parseInt(res.data[i].start.substr(8,10));
             var eventMonth = parseInt(res.data[i].start.substr(5,7));
             var eventYear = parseInt(res.data[i].start.substr(0,4));
-            if (eventYear >= currYear && eventMonth >= currMonth && eventDate >= eventDate)
+            console.log(eventYear + " " + eventMonth + " " + eventDate);
+            var eventElapsed = new Date(eventYear, eventMonth, eventDate, 0, 0);
+            var currDate= new Date();
+            var dd = currDate.getDate();
+            var mm = currDate.getMonth()+1; //January is 0!
+            var yyyy = currDate.getFullYear();
+            var today = new Date(yyyy,mm,dd,0,0);
+            console.log(eventElapsed.getTime() + " " + today.getTime());
+            if (eventElapsed.getTime() - today.getTime() >= 0)
               events.push(res.data[i].title);
           }
           events.push("Go back to Menu");

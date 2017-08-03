@@ -18,9 +18,9 @@ app.get('/', function(req, res) {
 
 // Facebook Messenger Routes
 
-app.get('/webhook/', function(req,res){
-	if (req.query['hub.verify_token'] === 'Boterloo') {
-		req.send(req.query['hub.challenge'])
+app.get('/webhook/', function(req, res) {
+	if (req.query['hub.verify_token'] === "Boterloo") {
+		res.send(req.query['hub.challenge'])
 	}
 	res.send("Wrong Token")
 })

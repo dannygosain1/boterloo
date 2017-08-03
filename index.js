@@ -3,34 +3,32 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const request = require('request')
+
 const app = express()
 
 app.set('port', (process.env.PORT || 5000))
 
-// Process application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({extended: false}))
-
-// Process application/json
+app.use(bodyParser.urlencoded({extended:false}))
 app.use(bodyParser.json())
 
-// Index route
-app.get('/', function (req, res) {
-	res.send('Hello world, I am a chat bot')
+// ROUTES
+app.get('/', function(req, res) {
+	res.send('I am a Chatbot')
 })
 
-// for Facebook verification
-app.get('/webhook/', function (req, res) {
-	if (req.query['hub.verify_token'] === 'my_voice_is_my_password_verify_me') {
-		res.send(req.query['hub.challenge'])
+// Facebook Messenger Routes
+
+app.get('/webhook/', function(req,res){
+	if (req.query['hub.verify_token'] === 'Boterloo') {
+		req.send(req.query['hub.challenge'])
 	}
-	res.send('Error, wrong token')
+	res.send("Wrong Token")
 })
 
-// Spin up the server
-app.listen(app.get('port'), function() {
-	console.log('');
-	// console.log('running on port', app.get('port'))
+app.listen(app.get('port'), function(){
+	console.log('running: port')
 })
+
 const builder = require('botbuilder'); // provides access to BotBuilder
 const https = require('https'); // use HTTPS module
 const connector = new builder.ConsoleConnector().listen(); // connect to console
